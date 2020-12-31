@@ -2,7 +2,8 @@
 const express = require('express')
 const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./swagger.yaml')
+const cors = require('cors')
+const swaggerDocument = YAML.load('./swagger.yaml');
 
 // Created dependencies
 const UserRoute = require('./routes/user')
@@ -15,6 +16,9 @@ const app = express()
 
 // Enable Express JSON bodies
 app.use(express.json())
+
+// Enable CORS
+app.use(cors())
 
 // User Express Routers
 app.use('/users', UserRoute)
