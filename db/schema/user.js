@@ -14,12 +14,12 @@ module.exports.Schema = new mongoose.Schema({
             CurrencyAmount: Number
         }
     ],
-    Titles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Titles' }],
-    Assignments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Assignments' }],
+    Titles: [],
+    Assignments: [],
     HonType: Number,
     Color: String,
     RedditName: String,
-    Inventory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Items' }]
+    Inventory: []
 })
 
 module.exports.Model = mongoose.model('Users', exports.Schema)

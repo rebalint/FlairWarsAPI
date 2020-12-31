@@ -10,6 +10,7 @@
 
 const Currency = require('../schema/currency')
 
+// Create a new currency type. The default stockpile is 1bil
 module.exports.CreateCurrency = (CurrencyName, CurrencySymbol) => {
     let NewCurrency = new Currency.Model({
         CurrencyName: CurrencyName,
@@ -21,15 +22,19 @@ module.exports.CreateCurrency = (CurrencyName, CurrencySymbol) => {
     return NewCurrency.save()
 }
 
+// Read a currency from the database by its ID
 module.exports.ReadOneCurrency = async (CurrencyID) => {
     return await Currency.Model.findById(CurrencyID).exec()
 }
 
+// Read all currencies from the database
 module.exports.ReadCurrencies = async () => {
     return await Currency.Model.find({}).exec()
 }
 
-module.exports.PullFromStockpile = (CurrencyID, Amount) => {
+// Perform a transaction with the Stockpile. Note- Adding to the stockpile is a NEGATIVE amount,
+// pulling from the stockpile is a POSITIVE amount. This is because it is used in reference to a user
+module.exports.StockpileTransaction = (CurrencyID, Amount) => {
     Currency.Model.findById(CurrencyID).exec( (err, res) => {
         if (err) console.error(err);
         else {

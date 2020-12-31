@@ -86,7 +86,7 @@ paths:
         required: true
         description: User's Discord ID
     put:
-      summary: ''
+      summary: PUT /users/id/DiscordID
       operationId: put-users-id-DiscordID
       responses:
         '202':
@@ -117,7 +117,7 @@ paths:
         - Authorization: []
   /application:
     post:
-      summary: ''
+      summary: POST /application
       operationId: post-api_auth
       responses:
         '201':
@@ -149,7 +149,7 @@ paths:
         in: path
         required: true
     put:
-      summary: ''
+      summary: PUT /application/AppName
       operationId: put-api_auth-AppName
       responses:
         '200':

@@ -10,8 +10,7 @@
  * CanMintCurrency - This application can add to the stockpile of a currency
  * CanDestroyCurrency - This application can remove currency from the stockpile
  * CanDeleteCurrency - This application can delete an entire currency
- * CanWithdrawCurrency - This application can pull currency from the Stockpile
- * CanDepositCurency - This application can put currency back into the Stockpile
+ * CanInteractWithCurrency - This application can withdraw or deposit currency to the Stockpile
  * 
  * All - This application can do anything
  */
@@ -30,8 +29,7 @@ module.exports.PermissionTypes = {
     CanDestroyCurrency: 'CanDestroyCurrency',
     CanDeleteCurrency: 'CanDeleteCurrency',
     CanManageAppPerms: 'CanManageAppPerms',
-    CanWithdrawCurrency: 'CanWithdrawCurrency',
-    CanDepositCurency: 'CanDepositCurency',
+    CanInteractWithCurrency: 'CanInteractWithCurrency',
     All: 'All'
 }
 
@@ -62,11 +60,12 @@ module.exports.AddPermissions = (AppName, NewPermissions) => {
         if (err) console.error(err);
         else {
             if (Array.isArray(NewPermissions)) {
-                res.Permissions = res.Permissions.concat(NewPermissions)
+                let newPermArray = res.Permissions.concat(NewPermissions)
+                res.Permissions = [ ...new Set(newPermArray) ]
                 res.save()
             }
             else {
-                res.Permissions.push(NewPermissions)
+                if (!res.Permissions.includes(NewPermissions)) res.Permissions.push(NewPermissions)
                 res.save()
             }
         }

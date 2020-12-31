@@ -12,6 +12,7 @@ const UserOps = require('../db/operations/user')
 const AppOps = require('../db/operations/application')
 const ProtectRoute = require('../auth/protected')
 
+// This route returns all users or all users matching the given query
 router.get('/', (req, res) => {
 
   if ( Object.keys(req.query).length > 0 ) {
@@ -52,6 +53,7 @@ router.get('/', (req, res) => {
    
 })
 
+// This route is used to create a user
 router.post('/', (req, res) => {
 
   const RoutePermissions = [AppOps.PermissionTypes.CanWriteUsers]
@@ -102,6 +104,7 @@ router.post('/', (req, res) => {
 
 })
 
+// This route is used to update the RedditName and/or Color of a user
 router.put('/id/:DiscordID', (req, res) => {
 
   const RequiredPermissions = [AppOps.PermissionTypes.CanUpdateUsers]
