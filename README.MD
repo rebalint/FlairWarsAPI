@@ -1,0 +1,3 @@
+# FlairWars API
+
+This is the Readme file, and there's basically nothing in it, so...
