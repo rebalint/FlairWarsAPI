@@ -1,11 +1,12 @@
 // Installed dependencies
 const express = require('express')
-const axios = require('axios')
+const swaggerUi = require('swagger-ui-express')
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./swagger.yaml')
 
 // Created dependencies
 const UserRoute = require('./routes/user')
 const ApiAuth = require('./routes/api_auth')
-const UserOps = require('./db/operations/user')
 
 // Initialize an Express app
 const app = express()
@@ -18,6 +19,9 @@ app.use(express.json())
 // User Express Routers
 app.use('/users', UserRoute)
 app.use('/application', ApiAuth)
+
+// Swagger Renderer
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 // Start the app (Will use server PORT if available, otherwise defaults to 5000)
 app.listen((process.env.PORT || 5000), () => {

@@ -18,9 +18,10 @@
   },
   "homepage": "https://github.com/Flairwars/FlairWarsAPI#readme",
   "dependencies": {
-    "axios": "^0.21.1",
     "express": "^4.17.1",
     "mongoose": "^5.11.9",
-    "snoowrap": "^1.22.0"
+    "snoowrap": "^1.22.0",
+    "swagger-ui-express": "^4.1.6",
+    "yamljs": "^0.3.0"
   }
 }
