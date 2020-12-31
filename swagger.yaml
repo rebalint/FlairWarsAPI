@@ -7,7 +7,7 @@ info:
     email: blastogypsy@gmail.com
   description: An API for FlairWars bots!
 servers:
-  - url: 'https://orange.flairwars.com'
+  - url: 'https://api.flairwars.com'
 paths:
   /users:
     get:
@@ -61,11 +61,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/user'
+              type: object
+              properties:
+                DiscordMemberID:
+                  type: string
+                FlairwarsColor:
+                  type: string
+                RedditUsername:
+                  type: string
+              required:
+                - DiscordMemberID
       description: Create a new user
       tags:
         - User
-        - Protected
       parameters: []
       security:
         - Authorization: []
@@ -105,7 +113,6 @@ paths:
                   type: string
       tags:
         - User
-        - Protected
       security:
         - Authorization: []
   /application:
@@ -155,30 +162,24 @@ paths:
           description: Forbidden
       tags:
         - Application
-        - Protected
       description: Grant an application additional permissions
-      parameters: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: action
+          description: The action you are performing (either add or remove)
+          required: true
       security:
         - Authorization: []
-    delete:
-      summary: ''
-      operationId: delete-api_auth-AppName
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-      tags:
-        - Application
-        - Protected
-      parameters: []
-      description: Remove permissions from an application
-      security:
-        - Authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Permissions:
+                  type: string
 components:
   schemas:
     user:
@@ -193,18 +194,17 @@ components:
       properties:
         DiscordMemberID:
           type: string
-        Color:
+        FlairwarsColor:
           type: string
-        RedditName:
+        RedditUsername:
           type: string
       required:
         - DiscordMemberID
   securitySchemes:
     Authorization:
-      name: Basic API_Key
+      name: authorization
       type: apiKey
       in: header
 tags:
   - name: User
-  - name: Protected
   - name: Application
