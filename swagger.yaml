@@ -180,6 +180,140 @@ paths:
               properties:
                 Permissions:
                   type: string
+  /currency:
+    get:
+      summary: GET /currency
+      tags:
+        - Currency
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/currency'
+      operationId: get-currency
+      description: Get currency information
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: Name
+          description: Query by name
+        - schema:
+            type: string
+          in: query
+          name: Symbol
+          description: Query by symbol
+        - schema:
+            type: string
+          in: query
+          name: ID
+          description: Query by ID
+    post:
+      summary: POST /currency
+      operationId: post-currency
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      description: Create a currency
+      security:
+        - Authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Name:
+                  type: string
+                Symbol:
+                  type: string
+              required:
+                - Name
+                - Symbol
+        description: Request body for creating a currency
+      tags:
+        - Currency
+  '/currency/{CurrencyID}':
+    parameters:
+      - schema:
+          type: string
+        name: CurrencyID
+        in: path
+        required: true
+    get:
+      summary: GET /currency/CurrencyID
+      tags:
+        - Currency
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/currency'
+      operationId: get-currency-CurrencyID
+      description: Retrieve a specific currency
+    put:
+      summary: PUT /currency/CurrencyID
+      operationId: put-currency-CurrencyID
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      description: This endpoint is used to add or remove currency from the Stockpile
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: action
+          required: true
+          description: Action for minting/removing (add/remove)
+      tags:
+        - Currency
+      security:
+        - Authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Amount:
+                  type: number
+              required:
+                - Amount
+    delete:
+      summary: ''
+      operationId: delete-currency-CurrencyID
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      description: Remove a currency
+      security:
+        - Authorization: []
+      tags:
+        - Currency
 components:
   schemas:
     user:
@@ -200,6 +334,21 @@ components:
           type: string
       required:
         - DiscordMemberID
+    currency:
+      title: currency
+      type: object
+      properties:
+        id:
+          type: string
+        Name:
+          type: string
+        Symbol:
+          type: string
+        RemainingStockpile:
+          type: integer
+        Stockpile:
+          type: integer
+      description: Model of a Currency
   securitySchemes:
     Authorization:
       name: authorization
@@ -208,3 +357,4 @@ components:
 tags:
   - name: User
   - name: Application
+  - name: Currency

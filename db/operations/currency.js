@@ -32,6 +32,11 @@ module.exports.ReadCurrencies = async () => {
     return await Currency.Model.find({}).exec()
 }
 
+// Read currencies given some query
+module.exports.ReadCurrenciesByQuery = async (query) => {
+    return await Currency.Model.find(query).exec
+}
+
 // Perform a transaction with the Stockpile. Note- Adding to the stockpile is a NEGATIVE amount,
 // pulling from the stockpile is a POSITIVE amount. This is because it is used in reference to a user
 module.exports.StockpileTransaction = (CurrencyID, Amount) => {

@@ -8,6 +8,7 @@ const swaggerDocument = YAML.load('./swagger.yaml');
 // Created dependencies
 const UserRoute = require('./routes/user')
 const ApiAuth = require('./routes/api_auth')
+const CurrencyRoute = require('./routes/currency')
 
 // Initialize an Express app
 const app = express()
@@ -23,6 +24,7 @@ app.use(cors())
 // User Express Routers
 app.use('/users', UserRoute)
 app.use('/application', ApiAuth)
+app.use('/currency', CurrencyRoute)
 
 // Swagger Renderer
 app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
