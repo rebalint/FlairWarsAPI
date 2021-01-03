@@ -12,6 +12,24 @@ const UserOps = require('../db/operations/user')
 const AppOps = require('../db/operations/application')
 const ProtectRoute = require('../auth/protected')
 
+// This helper function maps the DB properties to the JSON ones sent by the API
+let MapUsers = (userFromDB) => {
+  let UserObj = {
+    DiscordMemberID: userFromDB.MemberID,
+    FlairwarsColor: userFromDB.Color,
+    RedditUsername: userFromDB.RedditName,
+    Currencies: []
+  }
+  userFromDB.CurrencyCount.forEach(currency => {
+    UserObj.Currencies.push({
+      CurrencyType: `/currency/${currency.CurrencyType._id}`,
+      Amount: currency.CurrencyAmount
+    })
+  })
+
+  return UserObj
+}
+
 // This route returns all users or all users matching the given query
 router.get('/', (req, res) => {
 
@@ -26,11 +44,7 @@ router.get('/', (req, res) => {
     }).then( results => {
       let UsersResponse = []
       results.forEach( userResult => {
-        UsersResponse.push({
-          DiscordMemberID: userResult.MemberID,
-          FlairwarsColor: userResult.Color,
-          RedditUsername: userResult.RedditName
-        })
+        UsersResponse.push(MapUsers(userResult))
       })
       res.status(200).send(UsersResponse)
     })
@@ -41,11 +55,7 @@ router.get('/', (req, res) => {
     UserOps.ReadAllUsers().then( results => {
       let UsersResponse = []
       results.forEach( userResult => {
-        UsersResponse.push({
-          DiscordMemberID: userResult.MemberID,
-          FlairwarsColor: userResult.Color,
-          RedditUsername: userResult.RedditName
-        })
+        UsersResponse.push(MapUsers(userResult))
       })
       res.status(200).send(UsersResponse)
     })

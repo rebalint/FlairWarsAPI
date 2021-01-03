@@ -6,16 +6,19 @@ const Currency = require('../db/schema/currency')
 const AppOps = require('../db/operations/application')
 const ProtectRoute = require('../auth/protected')
 
+// This helper function maps the DB properties to the JSON ones sent by the API
 let MapCurrency = (currencyFromDB) => {
     return {
         id: currencyFromDB._id,
         Name: currencyFromDB.CurrencyName,
         Symbol: currencyFromDB.CurrencySymbol,
         RemainingStockpile: currencyFromDB.CurrencyRemainingStockpile,
-        Stockpile: currencyFromDB.CurrencyTotalStockpile
+        Stockpile: currencyFromDB.CurrencyTotalStockpile,
+        Mint: `/currency/${currencyFromDB._id}/mint`
     }
 }
 
+// Retrieve currencies, either all or ones that match given queries
 router.get('/', (req, res) => {
     if (Object.keys(req.query).length === 0) {
         CurrencyOps.ReadCurrencies().then( allCurrencies => {
@@ -45,6 +48,7 @@ router.get('/', (req, res) => {
     }
 })
 
+// Create a currency
 router.post('/', (req, res) => {
 
     const RoutePermissions = [AppOps.PermissionTypes.CanWriteCurrencies]
@@ -64,6 +68,7 @@ router.post('/', (req, res) => {
     ProtectRoute(RoutePermissions, req, res, RouteOperation)
 })
 
+// Get a specific currency by its ID
 router.get('/:CurrencyID', (req, res) => {
     CurrencyOps.ReadOneCurrency(req.params.CurrencyID).then(thisCurrency => {
         if (thisCurrency) {
@@ -75,6 +80,7 @@ router.get('/:CurrencyID', (req, res) => {
     })
 })
 
+// Update a currency's name and symbol
 router.put('/:CurrencyID', (req, res) => {
     const RoutePermissions = [AppOps.PermissionTypes.CanChangeCurrencyMeta]
 
@@ -101,6 +107,7 @@ router.put('/:CurrencyID', (req, res) => {
     ProtectRoute(RoutePermissions, req, res, RouteOperation)
 })
 
+// Delete a currency
 router.delete('/:CurrencyID', (req, res) => {
     const RequiredPermissions = [AppOps.PermissionTypes.CanDeleteCurrency]
     
@@ -116,6 +123,7 @@ router.delete('/:CurrencyID', (req, res) => {
     ProtectRoute(RequiredPermissions, req, res, RouteOperation)
 })
 
+// Add to a currency's stockpile
 router.put('/:CurrencyID/mint', (req, res) => {
     const RequiredPermissions = [AppOps.PermissionTypes.CanMintCurrency]
 
@@ -146,6 +154,7 @@ router.put('/:CurrencyID/mint', (req, res) => {
     ProtectRoute(RequiredPermissions, req, res, RouteOperation)
 })
 
+// Remove from a currency's stockpile
 router.delete('/:CurrencyID/mint', (req, res) => {
     const RequiredPermissions = [AppOps.PermissionTypes.CanDestroyCurrency]
 

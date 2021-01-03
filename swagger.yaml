@@ -372,11 +372,21 @@ components:
           type: string
         RedditUsername:
           type: string
+        Currencies:
+          type: array
+          items:
+            type: object
+            properties:
+              CurrencyType:
+                type: string
+              Amount:
+                type: integer
       required:
         - DiscordMemberID
     currency:
       title: currency
       type: object
+      description: Model of a Currency
       properties:
         id:
           type: string
@@ -388,7 +398,8 @@ components:
           type: integer
         Stockpile:
           type: integer
-      description: Model of a Currency
+        Mint:
+          type: string
   securitySchemes:
     Authorization:
       name: authorization
