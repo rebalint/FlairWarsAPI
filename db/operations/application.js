@@ -11,6 +11,7 @@
  * CanDestroyCurrency - This application can remove currency from the stockpile
  * CanDeleteCurrency - This application can delete an entire currency
  * CanInteractWithCurrency - This application can withdraw or deposit currency to the Stockpile
+ * CanChangeCurrencyMeta - This application can update the name and symbol of a currency
  * 
  * All - This application can do anything
  */
@@ -30,6 +31,7 @@ module.exports.PermissionTypes = {
     CanDeleteCurrency: 'CanDeleteCurrency',
     CanManageAppPerms: 'CanManageAppPerms',
     CanInteractWithCurrency: 'CanInteractWithCurrency',
+    CanChangeCurrencyMeta: 'CanChangeCurrencyMeta',
     All: 'All'
 }
 
