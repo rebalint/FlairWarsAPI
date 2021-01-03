@@ -58,6 +58,7 @@ router.post('/', (req, res) => {
         if (RequiredFields.every( item => req.body.hasOwnProperty(item))) {
             CurrencyOps.CreateCurrency(req.body.Name, req.body.Symbol).then( NewCurrency => {
                 res.status(201).send(`Created currency ${NewCurrency.CurrencyName} with a stockpile of ${NewCurrency.CurrencySymbol}${NewCurrency.CurrencyTotalStockpile}`)
+                AppOps.AddCurrency(NewCurrency._id, req.headers.authorization.split(' ')[1])
             })
         }
         else {
@@ -85,23 +86,30 @@ router.put('/:CurrencyID', (req, res) => {
     const RoutePermissions = [AppOps.PermissionTypes.CanChangeCurrencyMeta]
 
     const RouteOperation = () => {
-        const RequiredFields = ['Name', 'Symbol']
-        if (RequiredFields.every( item => req.body.hasOwnProperty(item))) {
-            CurrencyOps.ReadOneCurrency(req.params.CurrencyID).then(thisCurrency => {
-                if (thisCurrency) {
-                    thisCurrency.CurrencyName = req.body.Name
-                    thisCurrency.CurrencySymbol = req.body.Symbol
-                    thisCurrency.save()
-                    res.status(200).send(`OK: Currency is now named ${thisCurrency.CurrencyName} with the symbol ${thisCurrency.CurrencySymbol}`)
+        AppOps.ReadBySecret(req.headers.authorization.split(' ')[1]).then(thisApp => {
+            if (thisApp.Currencies.includes(req.params.CurrencyID)) {
+                const RequiredFields = ['Name', 'Symbol']
+                if (RequiredFields.every( item => req.body.hasOwnProperty(item))) {
+                    CurrencyOps.ReadOneCurrency(req.params.CurrencyID).then(thisCurrency => {
+                        if (thisCurrency) {
+                            thisCurrency.CurrencyName = req.body.Name
+                            thisCurrency.CurrencySymbol = req.body.Symbol
+                            thisCurrency.save()
+                            res.status(200).send(`OK: Currency is now named ${thisCurrency.CurrencyName} with the symbol ${thisCurrency.CurrencySymbol}`)
+                        }
+                        else {
+                            res.status(404).send('Not found: No currency at that ID')
+                        }
+                    })
                 }
                 else {
-                    res.status(404).send('Not found: No currency at that ID')
+                    res.status(400).send('Bad request: Incomplete body')
                 }
-            })
-        }
-        else {
-            res.status(400).send('Bad request: Incomplete body')
-        }
+            }
+            else {
+                res.status(403).send(`Forbidden: Applications can only perform this operation on currencies they created`)
+            }
+        })
     }
 
     ProtectRoute(RoutePermissions, req, res, RouteOperation)
@@ -112,10 +120,18 @@ router.delete('/:CurrencyID', (req, res) => {
     const RequiredPermissions = [AppOps.PermissionTypes.CanDeleteCurrency]
     
     const RouteOperation = () => {
-        Currency.Model.deleteOne({_id: req.params.CurrencyID}, (err, MongoResponse) => {
-            if (err) res.status(500).send(err)
+        AppOps.ReadBySecret(req.headers.authorization.split(' ')[1]).then(thisApp => {
+            if (thisApp.Currencies.includes(req.params.CurrencyID)) {
+                Currency.Model.deleteOne({_id: req.params.CurrencyID}, (err, MongoResponse) => {
+                    if (err) res.status(500).send(err)
+                    else {
+                        AppOps.RemoveCurrency(req.params.CurrencyID, req.headers.authorization.split(' ')[1])
+                        res.status(200).send('OK: Data deleted')
+                    }
+                })
+            }
             else {
-                res.status(200).send('OK: Data deleted')
+                res.status(403).send(`Forbidden: Applications can only perform this operation on currencies they created`)
             }
         })
     }
@@ -128,27 +144,34 @@ router.put('/:CurrencyID/mint', (req, res) => {
     const RequiredPermissions = [AppOps.PermissionTypes.CanMintCurrency]
 
     const RouteOperation = () => {
-        if (req.query.hasOwnProperty('amount')) {
-            if (!isNaN(parseInt(req.query.amount)) && (parseInt(req.query.amount) >= 0)) {
-                CurrencyOps.ReadOneCurrency(req.params.CurrencyID).then( thisCurrency => {
-                    if (thisCurrency) {
-                        thisCurrency.CurrencyRemainingStockpile += parseInt(req.query.amount)
-                        thisCurrency.CurrencyTotalStockpile += parseInt(req.query.amount)
-                        thisCurrency.save()
-                        res.status(200).send(thisCurrency)
+        AppOps.ReadBySecret(req.headers.authorization.split(' ')[1]).then(thisApp => {
+            if (thisApp.Currencies.includes(req.params.CurrencyID)) {
+                if (req.query.hasOwnProperty('amount')) {
+                    if (!isNaN(parseInt(req.query.amount)) && (parseInt(req.query.amount) >= 0)) {
+                        CurrencyOps.ReadOneCurrency(req.params.CurrencyID).then( thisCurrency => {
+                            if (thisCurrency) {
+                                thisCurrency.CurrencyRemainingStockpile += parseInt(req.query.amount)
+                                thisCurrency.CurrencyTotalStockpile += parseInt(req.query.amount)
+                                thisCurrency.save()
+                                res.status(200).send(thisCurrency)
+                            }
+                            else {
+                                res.status(404).send(`Not found: Currency ID ${req.params.CurrencyID} does not exist`)
+                            }
+                        })
                     }
                     else {
-                        res.status(404).send(`Not found: Currency ID ${req.params.CurrencyID} does not exist`)
+                        res.status(400).send('Bad request: \'amount\' must be a positive, non-zero number')
                     }
-                })
+                }
+                else {
+                    res.status(400).send('Bad request: No amount specified in query')
+                }
             }
             else {
-                res.status(400).send('Bad request: \'amount\' must be a positive, non-zero number')
+                res.status(403).send(`Forbidden: Applications can only perform this operation on currencies they created`)
             }
-        }
-        else {
-            res.status(400).send('Bad request: No amount specified in query')
-        }
+        })
     }
 
     ProtectRoute(RequiredPermissions, req, res, RouteOperation)
@@ -159,27 +182,35 @@ router.delete('/:CurrencyID/mint', (req, res) => {
     const RequiredPermissions = [AppOps.PermissionTypes.CanDestroyCurrency]
 
     const RouteOperation = () => {
-        if (req.query.hasOwnProperty('amount')) {
-            if (!isNaN(parseInt(req.query.amount)) && (parseInt(req.query.amount) >= 0)) {
-                CurrencyOps.ReadOneCurrency(req.params.CurrencyID).then( thisCurrency => {
-                    if (thisCurrency) {
-                        thisCurrency.CurrencyRemainingStockpile -= parseInt(req.query.amount)
-                        thisCurrency.CurrencyTotalStockpile -= parseInt(req.query.amount)
-                        thisCurrency.save()
-                        res.status(200).send(thisCurrency)
+        AppOps.ReadBySecret(req.headers.authorization.split(' ')[1]).then(thisApp => {
+            if (thisApp.Currencies.includes(req.params.CurrencyID)) {
+                if (req.query.hasOwnProperty('amount')) {
+                    if (!isNaN(parseInt(req.query.amount)) && (parseInt(req.query.amount) >= 0)) {
+                        CurrencyOps.ReadOneCurrency(req.params.CurrencyID).then( thisCurrency => {
+                            if (thisCurrency) {
+                                thisCurrency.CurrencyRemainingStockpile -= parseInt(req.query.amount)
+                                thisCurrency.CurrencyTotalStockpile -= parseInt(req.query.amount)
+                                thisCurrency.save()
+                                res.status(200).send(thisCurrency)
+                            }
+                            else {
+                                res.status(404).send(`Not found: Currency ID ${req.params.CurrencyID} does not exist`)
+                            }
+                        })
                     }
                     else {
-                        res.status(404).send(`Not found: Currency ID ${req.params.CurrencyID} does not exist`)
+                        res.status(400).send('Bad request: \'amount\' must be a positive, non-zero number')
                     }
-                })
+                }
+                else {
+                    res.status(400).send('Bad request: No amount specified in query')
+                }
             }
             else {
-                res.status(400).send('Bad request: \'amount\' must be a positive, non-zero number')
+                res.status(403).send(`Forbidden: Applications can only perform this operation on currencies they created`)
             }
-        }
-        else {
-            res.status(400).send('Bad request: No amount specified in query')
-        }
+        })
+        
     }
 
     ProtectRoute(RequiredPermissions, req, res, RouteOperation)

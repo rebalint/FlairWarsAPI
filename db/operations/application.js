@@ -96,3 +96,27 @@ module.exports.RemovePermissions = (AppName, PermsToRemove) => {
         }
     })
 }
+
+// Add a currency to this application's managed currencies array
+module.exports.AddCurrency = (CurrencyID, ApplicationID) => {
+    Application.Model.findById(ApplicationID).exec( (err, res) => {
+        if (err) console.error(err);
+        else {
+            res.Currencies.push(CurrencyID)
+            res.save()
+        }
+    })
+}
+
+// Remove a currency to from application's managed currencies array
+module.exports.RemoveCurrency = (CurrencyID, ApplicationID) => {
+    Application.Model.findById(ApplicationID).exec( (err, res) => {
+        if (err) console.error(err);
+        else {
+            if(res.Currencies.includes(CurrencyID)) {
+                res.Currencies = res.Currencies.splice(indexOf(CurrencyID), 1)
+                res.save()
+            }
+        }
+    })
+}
