@@ -104,7 +104,7 @@ module.exports.EvaluateCurrencyPrice = (currencyID, cb) => {
                 console.log(`Found ${TotalTransactions} transactions since last week`)
                 let StockpileMultiplier = 1 - ( thisCurrency.CurrencyRemainingStockpile / thisCurrency.CurrencyTotalStockpile )
                 console.log(`The stockpile multiplier is ${StockpileMultiplier}`)
-                let CurrencyCost = (TotalTransactions * StockpileMultiplier) + 1
+                let CurrencyCost = Math.floor(TotalTransactions * StockpileMultiplier) + 1
                 console.log(`The price of this currency is ${CurrencyCost}`)
                 cb (CurrencyCost)
             }

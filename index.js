@@ -32,7 +32,6 @@ let ApplicationAccessLogger = (req, res, next) => {
     let date = new Date().toISOString()
     let RequestMethod = req.method
     let RequestURL = req.url
-    let status = res.statusCode
     if (req.headers.hasOwnProperty('authorization')) {
         Auth.PullAppInfo(req.headers.authorization.split(' ')[1], thisApplication => {
             if (thisApplication) {
