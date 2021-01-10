@@ -56,20 +56,6 @@ module.exports.ReadUsersByQuery = async (query) => {
     .exec()
 }
 
-// Add a type of currency to a user
-module.exports.AddCurrencyTypeToUser = async (MemberID, CurrencyID) => {
-    return await User.Model.findOne({MemberID: MemberID}).exec( (err, res) => {
-        if (err) console.error(err);
-        else {
-            res.CurrencyCount.push({
-                CurrencyType: CurrencyID,
-                CurrencyAmount: 0
-            })
-            res.save()
-        }
-    })
-}
-
 // Helper function that returns the index of an object in an array, given a key and value from the object
 let IndexFinder = (array, key, value) => {
     for (let i = 0; i < array.length; i++) {
@@ -78,31 +64,26 @@ let IndexFinder = (array, key, value) => {
     return -1
 }
 
-// Helper function to determine if an objec exists within an array, given a key and value from the object
-let ItemPresent = (array, key, value) => {
-    for (let i = 0; i < array.length; i++) {
-        if (array[i][key].equals(value)) return true
-    }
-    return false
-}
-
 // Give currency of a given type to a user from the stockpile
 module.exports.ChangeCurrencyAmount = (MemberID, CurrencyTypeID, amount) => {
     return User.Model.findOne({MemberID: MemberID}).exec( (err, res) => {
         if (err) console.error(err)
-        else {
-            if ( ItemPresent(res.CurrencyCount, 'CurrencyType', CurrencyTypeID ) ) {
+        else if (res) {
+            if ( IndexFinder(res.CurrencyCount, 'CurrencyType', CurrencyTypeID) >= 0) {
                 let CurrencyIndex = IndexFinder(res.CurrencyCount, 'CurrencyType', CurrencyTypeID)
-                res.CurrencyCount[CurrencyIndex].CurrencyAmount += CurrencyOps.StockpileTransaction(CurrencyTypeID, amount)
+                res.CurrencyCount[CurrencyIndex].CurrencyAmount += amount
                 return res.save()
             }
             else {
-                module.exports.AddCurrencyTypeToUser(MemberID, CurrencyTypeID).then( () => {
-                    let CurrencyIndex = IndexFinder(res.CurrencyCount, 'CurrencyType', CurrencyTypeID)
-                    res.CurrencyCount[CurrencyIndex].CurrencyAmount += CurrencyOps.StockpileTransaction(CurrencyTypeID, amount)
-                    return res.save()
+                res.CurrencyCount.push({
+                    CurrencyType: CurrencyTypeID,
+                    CurrencyAmount: amount
                 })
+                return res.save()
             }
+        }
+        else {
+            console.log(`User ${MemberID} not found`)
         }
     })
 }

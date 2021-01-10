@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Flairwars/FlairWarsAPI#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "cron": "^1.8.2",
     "express": "^4.17.1",
     "mongoose": "^5.11.9",
     "snoowrap": "^1.22.0",

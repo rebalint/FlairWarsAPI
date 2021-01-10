@@ -14,7 +14,7 @@ let MapCurrency = (currencyFromDB) => {
         Symbol: currencyFromDB.CurrencySymbol,
         RemainingStockpile: currencyFromDB.CurrencyRemainingStockpile,
         Stockpile: currencyFromDB.CurrencyTotalStockpile,
-        Mint: `/currency/${currencyFromDB._id}/mint`
+        Mint: `/currencies/${currencyFromDB._id}/mint`
     }
 }
 
@@ -34,8 +34,7 @@ router.get('/', (req, res) => {
         CurrencyOps.ReadCurrenciesByQuery({
             $or: [
                 {CurrencyName: req.query.Name},
-                {CurrencySymbol: req.query.Symbol},
-                {_id: req.query.ID}
+                {CurrencySymbol: req.query.Symbol}
             ]
         }).then( queriedurrencies => {
             const responseArray = []

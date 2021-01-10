@@ -22,7 +22,7 @@ let MapUsers = (userFromDB) => {
   }
   userFromDB.CurrencyCount.forEach(currency => {
     UserObj.Currencies.push({
-      CurrencyType: `/currency/${currency.CurrencyType._id}`,
+      CurrencyType: `/currencies/${currency.CurrencyType._id}`,
       Amount: currency.CurrencyAmount
     })
   })

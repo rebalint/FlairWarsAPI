@@ -16,7 +16,8 @@ module.exports.CreateCurrency = (CurrencyName, CurrencySymbol) => {
         CurrencyName: CurrencyName,
         CurrencySymbol: CurrencySymbol,
         CurrencyTotalStockpile: 1000000000,
-        CurrencyRemainingStockpile: 1000000000
+        CurrencyRemainingStockpile: 1000000000,
+        CurrencyPrice: 1
     })
 
     return NewCurrency.save()
@@ -49,4 +50,27 @@ module.exports.StockpileTransaction = (CurrencyID, Amount) => {
         }
     })
     return Amount
+}
+
+// Exchange currency
+module.exports.ExchangeCurrency = (FromCurrencyID, ToCurrencyID, Amount, cb) => {
+    Currency.Model.findById(FromCurrencyID).exec( (FromErr, FromCurrency) => {
+        if (FromErr) console.error(FromErr)
+        else {
+            Currency.Model.findById(ToCurrencyID).exec( (ToErr, ToCurrency) => {
+                if (ToErr) console.error(ToErr)
+                else {
+                    FromCurrency.CurrencyTotalStockpile -= Amount
+                    FromCurrency.CurrencyRemainingStockpile -= Amount
+                    FromCurrency.save()
+                    let ExchangeAmount = (FromCurrency.CurrencyPrice/ToCurrency.CurrencyPrice) * Amount
+                    ToCurrency.CurrencyTotalStockpile += ExchangeAmount
+                    ToCurrency.CurrencyRemainingStockpile += ExchangeAmount
+                    ToCurrency.save()
+                    console.log(`STOCKPILE INTERACTION: <FROM ${FromCurrency.CurrencyName} [${FromCurrency.CurrencySymbol}${Amount}] TO ${ToCurrency.CurrencyName} [${ToCurrency.CurrencySymbol}${ExchangeAmount}]> EXCHANGED`)
+                    cb(ExchangeAmount)
+                }
+            })
+        }
+    })
 }

@@ -5,7 +5,11 @@ info:
   contact:
     name: BlastoGypsy
     email: blastogypsy@gmail.com
-  description: An API for FlairWars bots!
+  description: |-
+    An API for FlairWars bots!
+
+    ### Authorization
+    Authorization is done using an Authorization Header. In the body of the header, please use "Basic YOUR-API-KEY-HERE". To get more application permissions, at the moment, you must request them by directly contacting @BlastoGypsy, and processes for automating this are being engineered and worked on otherwise.
 servers:
   - url: 'https://api.flairwars.com'
 paths:
@@ -115,9 +119,9 @@ paths:
         - User
       security:
         - Authorization: []
-  /application:
+  /applications:
     post:
-      summary: POST /application
+      summary: POST /applications
       operationId: post-api_auth
       responses:
         '201':
@@ -141,7 +145,7 @@ paths:
                 - ApplicationName
         description: Send your application name. This will be used to log your application's request and manage your application's permissions.
     parameters: []
-  '/application/{AppName}':
+  '/applications/{AppName}':
     parameters:
       - schema:
           type: string
@@ -149,7 +153,7 @@ paths:
         in: path
         required: true
     put:
-      summary: PUT /application/AppName
+      summary: PUT /applications/AppName
       operationId: put-api_auth-AppName
       responses:
         '200':
@@ -180,9 +184,9 @@ paths:
               properties:
                 Permissions:
                   type: string
-  /currency:
+  /currencies:
     get:
-      summary: GET /currency
+      summary: GET /currencies
       tags:
         - Currency
       responses:
@@ -207,13 +211,8 @@ paths:
           in: query
           name: Symbol
           description: Query by symbol
-        - schema:
-            type: string
-          in: query
-          name: ID
-          description: Query by ID
     post:
-      summary: POST /currency
+      summary: POST /currencies
       operationId: post-currency
       responses:
         '201':
@@ -243,7 +242,8 @@ paths:
         description: Request body for creating a currency
       tags:
         - Currency
-  '/currency/{CurrencyID}':
+    parameters: []
+  '/currencies/{CurrencyID}':
     parameters:
       - schema:
           type: string
@@ -251,7 +251,7 @@ paths:
         in: path
         required: true
     get:
-      summary: GET /currency/CurrencyID
+      summary: GET /currencies/CurrencyID
       tags:
         - Currency
       responses:
@@ -264,7 +264,7 @@ paths:
       operationId: get-currency-CurrencyID
       description: Retrieve a specific currency
     delete:
-      summary: DELETE /currency/CurrencyID
+      summary: DELETE /currencies/CurrencyID
       operationId: delete-currency-CurrencyID
       responses:
         '200':
@@ -281,7 +281,7 @@ paths:
       tags:
         - Currency
     put:
-      summary: PUT /currency/CurrencyID
+      summary: PUT /currencies/CurrencyID
       operationId: put-currency-CurrencyID
       responses:
         '200':
@@ -300,7 +300,9 @@ paths:
                 Symbol:
                   type: string
         description: New info
-  '/currency/{CurrencyID}/mint':
+      security:
+        - Authorization: []
+  '/currencies/{CurrencyID}/mint':
     parameters:
       - schema:
           type: string
@@ -308,7 +310,7 @@ paths:
         in: path
         required: true
     put:
-      summary: PUT /currency/CurrencyID/mint
+      summary: PUT /currencies/CurrencyID/mint
       operationId: put-currency-CurrencyID-mint
       responses:
         '200':
@@ -332,7 +334,7 @@ paths:
           required: true
           description: The amount to add
     delete:
-      summary: DELETE /currency/CurrencyID/mint
+      summary: DELETE /currencies/CurrencyID/mint
       operationId: delete-currency-CurrencyID-mint
       responses:
         '200':
@@ -354,6 +356,120 @@ paths:
           in: query
           name: amount
           description: The amount to remove
+  /transactions:
+    get:
+      summary: GET /transactions
+      tags:
+        - Transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/transaction'
+      operationId: get-transaction
+      description: Get all transactions or filter them with a query
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fromDate
+          description: Get transactions since this date (formatted YYYY-MM-DD)
+        - schema:
+            type: string
+          in: query
+          name: toDate
+          description: Get transactions up until this date (formatted YYYY-MM-DD)
+        - schema:
+            type: string
+          in: query
+          name: lessThan
+          description: Get transactions whose amount is less than this number
+        - schema:
+            type: string
+          in: query
+          name: greaterThan
+          description: Get transactions whose amount is greater than this number
+        - schema:
+            type: string
+          in: query
+          name: type
+          description: Get transactions of a given type
+        - schema:
+            type: string
+          in: query
+          name: from
+          description: Get transactions that originated from this entity
+        - schema:
+            type: string
+          in: query
+          name: to
+          description: Get transactions that went to this entity
+    post:
+      summary: POST /transactions
+      operationId: post-transaction
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      tags:
+        - Transaction
+      security:
+        - Authorization: []
+      description: |-
+        Create a new transaction.
+
+        # Transaction Types:
+         * Withdrawal - Stockpile to User (Same currency type) - Only required fields needed
+         * Deposit - User to Stockpile (Same currency type) - Only required fields needed
+         * UserTransfer - User to User (Same currency type) - Required Fields and 'FromCurrency' and 'ToCurrency' fields needed
+         * BankExchange - Stockpile to stockpile (different currency types) - Only required fields needed
+         * UserExchange - User to Stockpile (different currency types) - Required Fields and 'FromCurrency' and 'ToCurrency' fields needed. This function exchanges the FromCurrency to the ToCurrency for a User. 'To' should be the same as 'ToCurrency'
+
+        ## Description Field
+        This field should be used to store any transaction data that you may need, like Item IDs or expiration dates for items. You have to handle what happens with this data, the Description field is simply there for storage of data.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Type:
+                  type: string
+                From:
+                  type: string
+                To:
+                  type: string
+                Amount:
+                  type: number
+                Desc:
+                  type: string
+                FromCurrency:
+                  type: string
+                ToCurrency:
+                  type: string
+              required:
+                - Type
+                - From
+                - To
+                - Amount
+                - Desc
+        description: |-
+          Valid Types:
+           * Withdrawal - From should be CurrencyID, To should be UserID
+           * Deposit - From should be UserID, To should be CurrencyID
+           * UserTransfer - From should be UserID, To should be UserID, FromCurrency should be CurrencyID, ToCurrency should be CurrencyID
+           * BankExchange - From should be CurrencyID, To should be CurrencyID
+           * UserExchange - From should be UserID, To should be CurrencyID, FromCurrency should be CurrencyID, ToCurrency should be CurrencyID
+    parameters: []
 components:
   schemas:
     user:
@@ -384,7 +500,7 @@ components:
       required:
         - DiscordMemberID
     currency:
-      title: currency
+      title: Currency
       type: object
       description: Model of a Currency
       properties:
@@ -400,6 +516,37 @@ components:
           type: integer
         Mint:
           type: string
+    transaction:
+      title: Transaction
+      type: object
+      description: This is the model of a Transaction.
+      properties:
+        DateActioned:
+          type: string
+        Type:
+          type: string
+        From:
+          type: string
+        To:
+          type: string
+        Desc:
+          type: string
+        Amount:
+          type: number
+        ID:
+          type: string
+        FromCurrency:
+          type: string
+        ToCurrency:
+          type: string
+      required:
+        - DateActioned
+        - Type
+        - From
+        - To
+        - Desc
+        - Amount
+        - ID
   securitySchemes:
     Authorization:
       name: authorization
@@ -409,3 +556,4 @@ tags:
   - name: User
   - name: Application
   - name: Currency
+  - name: Transaction
