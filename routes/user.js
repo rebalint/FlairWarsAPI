@@ -100,7 +100,7 @@ router.post('/', (req, res) => {
             res.status(409).send('Conflict: User exists')
           }
           else {
-            UserOps.CreateUser(req.body.DiscordMemberID, 'None')
+            UserOps.APICreateUser(req.body.DiscordMemberID, 'None', 'None')
             res.status(201).send('Created')
           }
         })
