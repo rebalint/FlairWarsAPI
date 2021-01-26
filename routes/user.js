@@ -122,17 +122,14 @@ router.put('/id/:DiscordID', (req, res) => {
   let RouteOperation = () => {
     UserOps.ReadOneUser(req.params.DiscordID).then(ThisUser => {
       if (ThisUser) {
-        const RequiredFields = ['FlairwarsColor','RedditUsername']
-  
-        if (RequiredFields.every( item => req.body.hasOwnProperty(item))) {
+        if (req.body.hasOwnProperty('RedditUsername')) {
           ThisUser.RedditName = req.body.RedditUsername
+        }
+        if (req.body.hasOwnProperty('FlairwarsColor')) {
           ThisUser.Color = req.body.FlairwarsColor
-          ThisUser.save()
-          res.status(202).send('Accepted: User updated')
         }
-        else {
-          res.status(400).send('Bad Request: Required fields not met')
-        }
+        ThisUser.save()
+        res.status(202).send('Accepted: User updated')
       }
       else {
         res.status(404).send('Not Found: User not found')
