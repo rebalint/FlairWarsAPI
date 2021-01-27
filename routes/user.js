@@ -128,6 +128,9 @@ router.put('/id/:DiscordID', (req, res) => {
         if (req.body.hasOwnProperty('FlairwarsColor')) {
           ThisUser.Color = req.body.FlairwarsColor
         }
+        if (req.body.hasOwnProperty('MemberNickname')) {
+          ThisUser.MemberNickname = req.body.MemberNickname
+        }
         ThisUser.save()
         res.status(202).send('Accepted: User updated')
       }
