@@ -103,7 +103,7 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
-      description: Update a user's Flairwars Color and Reddit Username
+      description: 'Update a user''s Flairwars Color, Reddit Username, or Nickname in the system!'
       parameters: []
       requestBody:
         content:
@@ -115,6 +115,9 @@ paths:
                   type: string
                 FlairwarsColor:
                   type: string
+                MemberNickname:
+                  type: string
+        description: ''
       tags:
         - User
       security:
