@@ -37,7 +37,6 @@ router.get('/', (req, res) => {
                 {CurrencySymbol: req.query.Symbol}
             ]
         }).then( queriedurrencies => {
-            console.log(queriedurrencies)
             const responseArray = []
             queriedurrencies.forEach( currency => {
                 let AddedCurrency = MapCurrency(currency)
