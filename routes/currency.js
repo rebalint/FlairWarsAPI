@@ -56,7 +56,7 @@ router.post('/', (req, res) => {
         const RequiredFields = ['Name', 'Symbol']
         if (RequiredFields.every( item => req.body.hasOwnProperty(item))) {
             CurrencyOps.CreateCurrency(req.body.Name, req.body.Symbol).then( NewCurrency => {
-                res.status(201).send(`Created currency ${NewCurrency.CurrencyName} with a stockpile of ${NewCurrency.CurrencySymbol}${NewCurrency.CurrencyTotalStockpile}`)
+                res.status(201).send(MapCurrency(NewCurrency))
                 AppOps.AddCurrency(NewCurrency._id, req.headers.authorization.split(' ')[1])
             })
         }
