@@ -1,7 +1,4 @@
 const mongoose = require('mongoose');
-const AppSchema = require('./schema/application')
-const CurrencySchema = require('./schema/currency')
-const UserSchema = require('./schema/user')
 
 // Connect to the database
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
