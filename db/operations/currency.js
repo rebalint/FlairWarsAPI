@@ -12,35 +12,40 @@ const Currency = require('../schema/currency')
 
 // Create a new currency type. The default stockpile is 1bil
 module.exports.CreateCurrency = (CurrencyName, CurrencySymbol) => {
-    let NewCurrency = new Currency.Model({
+    return new Currency.Schema.create({
         CurrencyName: CurrencyName,
         CurrencySymbol: CurrencySymbol,
         CurrencyTotalStockpile: 1000000000,
         CurrencyRemainingStockpile: 1000000000,
         CurrencyPrice: 1
     })
-
-    return NewCurrency.save()
 }
 
 // Read a currency from the database by its ID
 module.exports.ReadOneCurrency = async (CurrencyID) => {
-    return await Currency.Model.findById(CurrencyID).exec()
+    return await Currency.Schema.findOne({
+        where: {
+            id:{
+                [Op.eq]: CurrencyID
+            }
+        }
+    })
 }
 
 // Read all currencies from the database
 module.exports.ReadCurrencies = async () => {
-    return await Currency.Model.find({}).exec()
+    return await Currency.Schema.findAll()
 }
 
 // Read currencies given some query
 module.exports.ReadCurrenciesByQuery = async (query) => {
-    return await Currency.Model.find(query).exec()
+    return await Currency.Schema.findAll(query)
 }
 
 // Perform a transaction with the Stockpile. Note- Adding to the stockpile is a NEGATIVE amount,
 // pulling from the stockpile is a POSITIVE amount. This is because it is used in reference to a user
 module.exports.StockpileTransaction = (CurrencyID, Amount) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     Currency.Model.findById(CurrencyID).exec( (err, res) => {
         if (err) console.error(err);
         else {
@@ -54,6 +59,7 @@ module.exports.StockpileTransaction = (CurrencyID, Amount) => {
 
 // Exchange currency
 module.exports.ExchangeCurrency = (FromCurrencyID, ToCurrencyID, Amount, cb) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     Currency.Model.findById(FromCurrencyID).exec( (FromErr, FromCurrency) => {
         if (FromErr) console.error(FromErr)
         else {

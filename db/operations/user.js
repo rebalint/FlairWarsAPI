@@ -13,22 +13,21 @@
 
 const User = require('../schema/user')
 const CurrencyOps = require('../operations/currency')
+const { Op } = require('sequelize')
 
 // This function creates a user.
 module.exports.APICreateUser = (MemberID, RedditName, Color) => {
-    let NewUser = new User.Model({
+    return User.Schema.create({
         MemberID: MemberID,
-        MemberNickname: RedditName,
-        CurrencyCount: [],
-        Titles: [],
-        Assignments: [],
-        HonType: 0,
+        MemberNickname: RedditName, //TODO: is this correct
+        // CurrencyCount: [],
+        // Titles: [],
+        // Assignments: [],
+        // HonType: 0,
         Color: Color,
         RedditName: RedditName,
-        Inventory: []
+        // Inventory: []
     })
-
-    return NewUser.save()
 }
 
 /** USER CRUD Operations 
@@ -37,23 +36,22 @@ module.exports.APICreateUser = (MemberID, RedditName, Color) => {
 
 // Read one user from the database using their Discord ID
 module.exports.ReadOneUser = async (MemberID) => {
-    return await User.Model.findOne({MemberID: MemberID})
-        .populate('CurrencyCount.CurrencyType')
-        .exec()
+    return await User.Schema.findOne({
+        where: {
+            MemberID: {
+                [Op.eq]: MemberID
+            }
+        }
+    })
 }
 
 // Read all users in the database
 module.exports.ReadAllUsers = async () => {
-    return await User.Model.find({})
-        .populate('CurrencyCount.CurrencyType')
-        .exec()
+    return await User.Schema.findAll()
 }
 
-// Read all users given a Mongoose Query Object
 module.exports.ReadUsersByQuery = async (query) => {
-    return await User.Model.find(query)
-    .populate('CurrencyCount.CurrencyType')
-    .exec()
+    return await User.Schema.findAll(query)
 }
 
 // Helper function that returns the index of an object in an array, given a key and value from the object
@@ -66,6 +64,7 @@ let IndexFinder = (array, key, value) => {
 
 // Give currency of a given type to a user from the stockpile
 module.exports.ChangeCurrencyAmount = (MemberID, CurrencyTypeID, amount) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     return User.Model.findOne({MemberID: MemberID}).exec( (err, res) => {
         if (err) console.error(err)
         else if (res) {

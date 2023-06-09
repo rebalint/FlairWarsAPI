@@ -18,15 +18,7 @@ let MapUsers = (userFromDB) => {
     DiscordMemberID: userFromDB.MemberID,
     FlairwarsColor: userFromDB.Color,
     RedditUsername: userFromDB.RedditName,
-    Currencies: []
   }
-  userFromDB.CurrencyCount.forEach(currency => {
-    UserObj.Currencies.push({
-      CurrencyType: `/currencies/${currency.CurrencyType._id}`,
-      Amount: currency.CurrencyAmount
-    })
-  })
-
   return UserObj
 }
 

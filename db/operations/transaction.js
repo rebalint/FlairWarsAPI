@@ -41,6 +41,7 @@ let IndexFinder = (array, key, value) => {
 
 // This helper function will verify that a Currency has enough to cover some transaction
 const VerifyCurrencyAmount = (CurrencyID, Amount, cb) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     CurrencyOps.ReadOneCurrency(CurrencyID).then( thisCurrency => {
         if (thisCurrency) {
             if (Amount > thisCurrency.CurrencyRemainingStockpile) {
@@ -54,6 +55,7 @@ const VerifyCurrencyAmount = (CurrencyID, Amount, cb) => {
 
 // This helper function will verify that a User has enough to cover some transaction
 const VerifyUserAmount = (CurrencyID, MemberID, Amount, cb) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     console.log(`Searching for user ${MemberID}`)
     UserOps.ReadOneUser(MemberID).then(thisUser => {
         if (thisUser) {
@@ -79,6 +81,7 @@ const VerifyUserAmount = (CurrencyID, MemberID, Amount, cb) => {
 }
 
 module.exports.EvaluateCurrencyPrice = (currencyID, cb) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     let OneWeekAgo = new Date(new Date().getTime() - (60*60*24*7*1000))
     let NowDate = new Date()
     let WeekAgoQuery = new Date(OneWeekAgo.getFullYear(), OneWeekAgo.getMonth(), OneWeekAgo.getDate())
@@ -113,6 +116,7 @@ module.exports.EvaluateCurrencyPrice = (currencyID, cb) => {
 }
 
 module.exports.Create = (Type, TransactionObject, cb) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     switch(Type) {
         case 'Withdrawal':
             VerifyCurrencyAmount(TransactionObject.From, TransactionObject.Amount, EnoughCurrency => {
@@ -242,10 +246,12 @@ module.exports.Create = (Type, TransactionObject, cb) => {
 
 // Retrieve ALL transactions
 module.exports.ReadAllTransactions = async () => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     return await Transaction.Model.find({}).exec()
 }
 
 // Retrieve transactions given a query
 module.exports.ReadTransactionsByQuery = async (query) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     return await Transaction.Model.find(query).exec()
 }

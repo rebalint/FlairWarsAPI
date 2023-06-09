@@ -16,8 +16,11 @@
  * All - This application can do anything
  */
 
+const crypto = require('crypto')
+
  // The Application Schema file
 const Application = require('../schema/application')
+const { Op } = require('sequelize')
 
 // Permission Types create an easy to use format for standardizing permission restrictions
 module.exports.PermissionTypes = {
@@ -36,69 +39,73 @@ module.exports.PermissionTypes = {
 }
 
 // This function creates an application in the database.
-module.exports.RegisterApplication = (AppName) => {
-    let NewApplication = new Application.Model({
+module.exports.RegisterApplication = async (AppName) => {
+    return await Application.Schema.create({
         AppName: AppName,
         Permissions: [],
-        Currencies: []
+        // Currencies: []
     })
-
-    return NewApplication.save()
 }
 
 // Retrieves an Application from the database using its secret
-module.exports.ReadBySecret = async (AppSecret) => {
-    return await Application.Model.findById(AppSecret).exec()
+module.exports.ReadBySecret = async (secret) => {
+    return await Application.Schema.findOne({
+        where: {
+            AppSecret: {
+                [Op.eq]: secret
+            }
+        }
+    })
 }
 
 // Retrieves an Application from the database using its name
-module.exports.ReadByName = async (AppName) => {
-    return await Application.Model.findOne({AppName: AppName}).exec()
+module.exports.ReadByName = async (name) => {
+    return await Application.Schema.findOne({
+        where: {
+            AppName: {[Op.eq]: name}
+        }
+    })
 }
 
 // Append Permissions to an application's Permissions array
 module.exports.AddPermissions = (AppName, NewPermissions) => {
-    Application.Model.findOne({AppName: AppName}).exec( (err, res) => {
-        if (err) console.error(err);
-        else {
-            if (Array.isArray(NewPermissions)) {
-                let newPermArray = res.Permissions.concat(NewPermissions)
-                res.Permissions = [ ...new Set(newPermArray) ]
-                res.save()
-            }
-            else {
-                if (!res.Permissions.includes(NewPermissions)) res.Permissions.push(NewPermissions)
-                res.save()
-            }
+    this.ReadByName(AppName).then(app => {
+        let newPermArray = []
+
+        if(app.Permissions != null){
+            newPermArray.concat(app.Permissions)
         }
+        if(Array.isArray(NewPermissions)){
+            newPermArray.concat(NewPermissions)
+        } else {
+            newPermArray.push(NewPermissions)
+        }
+        app.update({Permissions: newPermArray}, {where: {AppName: AppName}})
     })
 }
 
 // Remove Permissions from an application's Permissions array
 module.exports.RemovePermissions = (AppName, PermsToRemove) => {
-    Application.Model.findOne({AppName: AppName}).exec( (err, res) => {
-        if (err) console.error(err);
-        else {
-            if (Array.isArray(PermsToRemove)) {
-                PermsToRemove.forEach( permission => {
-                    if (res.Permissions.includes(permission)) {
-                        res.Permissions.splice(res.Permissions.indexOf(permission), 1)
-                    }
-                })
-                res.save()
-            }
-            else {
-                if (res.Permissions.includes(PermsToRemove)) {
-                    res.Permissions.splice(res.Permissions.indexOf(PermsToRemove), 1)
+    this.ReadByName(AppName)
+    .then(app => {
+        let newPerms = app.Permissions
+        if(Array.isArray(PermsToRemove)){
+            PermsToRemove.forEach(perm => {
+                if(newPerms.includes(perm)){
+                    newPerms = newPerms.filter(p => p != perm)
                 }
-                res.save()
-            }
+            })
+        } else {
+            newPerms = newPerms.filter(p => p != PermsToRemove)
         }
+        Application.Schema.update({AppName: AppName}, {Permissions: newPerms})
     })
+    .catch()
 }
 
 // Add a currency to this application's managed currencies array
 module.exports.AddCurrency = (CurrencyID, ApplicationID) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     Application.Model.findById(ApplicationID).exec( (err, res) => {
         if (err) console.error(err);
         else {
@@ -110,6 +117,7 @@ module.exports.AddCurrency = (CurrencyID, ApplicationID) => {
 
 // Remove a currency to from application's managed currencies array
 module.exports.RemoveCurrency = (CurrencyID, ApplicationID) => {
+    throw new Error('Feature not implemented') // TODO couldnt be bothered, sorry
     Application.Model.findById(ApplicationID).exec( (err, res) => {
         if (err) console.error(err);
         else {

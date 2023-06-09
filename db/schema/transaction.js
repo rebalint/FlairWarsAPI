@@ -3,17 +3,16 @@
  * Database Schema for Transaction Objects in the database
  */
 
-const mongoose = require('mongoose')
+const { DataTypes } = require('sequelize')
+const { Db } = require('../db')
 
-module.exports.Schema = new mongoose.Schema({
-    DateActioned: Date,
-    Type: String,
-    FromEntity: String,
-    ToEntity: String,
-    TransactionDescription: String,
-    Amount: Number,
-    FromCurrency: String,
-    ToCurrency: String
+module.exports.Schema = Db.define("Transaction", {
+    DateActioned: DataTypes.DATE,
+    Type: DataTypes.STRING,
+    FromEntity: DataTypes.STRING,
+    ToEntity: DataTypes.STRING,
+    TransactionDescription: DataTypes.STRING,
+    Amount: DataTypes.INTEGER,
+    FromCurrency: DataTypes.STRING,
+    ToCurrency: DataTypes.STRING
 })
-
-module.exports.Model = mongoose.model("Transactions", exports.Schema)

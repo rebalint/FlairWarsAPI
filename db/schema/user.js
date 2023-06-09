@@ -3,23 +3,22 @@
  * The User Schema for User Objects in the database
  */
 
-const mongoose = require('mongoose')
+const { DataTypes, DATE } = require('sequelize')
+const { Db } = require('../db')
 
-module.exports.Schema = new mongoose.Schema({
-    MemberID: String,
-    MemberNickname: String,
-    CurrencyCount: [
-        {
-            CurrencyType: {type: mongoose.Schema.Types.ObjectId, ref: 'CurrencyTypes'},
-            CurrencyAmount: Number
-        }
-    ],
-    Titles: [],
-    Assignments: [],
-    HonType: Number,
-    Color: String,
-    RedditName: String,
-    Inventory: []
+module.exports.Schema = Db.define("User", {
+    MemberID: DataTypes.STRING,
+    MemberNickname: DataTypes.STRING,
+    // CurrencyCount: [
+    //     {
+    //         CurrencyType: {type: mongoose.Schema.Types.ObjectId, ref: 'CurrencyTypes'},
+    //         CurrencyAmount: Number
+    //     }
+    // ],
+    //Titles: [],
+    //Assignments: [],
+    //HonType: Number,
+    Color: DataTypes.STRING,
+    RedditName: DataTypes.STRING,
+    //Inventory: []
 })
-
-module.exports.Model = mongoose.model('Users', exports.Schema)

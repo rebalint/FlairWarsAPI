@@ -1,4 +1,8 @@
 // Installed dependencies
+require('dotenv').config()
+// This initializes the MongoDB connection
+const db = require('./db/db');
+
 const express = require('express')
 const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs');
@@ -10,11 +14,27 @@ const CronJob = require('cron').CronJob
 // Created dependencies
 const UserRoute = require('./routes/user')
 const ApiAuth = require('./routes/api_auth')
-const CurrencyRoute = require('./routes/currency')
-const TransactionRoute = require('./routes/transaction')
+// const CurrencyRoute = require('./routes/currency')
+// const TransactionRoute = require('./routes/transaction')
 const CurrencyOps = require('./db/operations/currency')
 const TransactionOps = require('./db/operations/transaction')
-const Auth = require('./auth/auth_gate')
+const Auth = require('./auth/auth_gate');
+const { ReadByName, RegisterApplication, AddPermissions, PermissionTypes } = require('./db/operations/application');
+
+// Sync the db unless that's explicitly forbidden
+if(process.env.DB_NOSYNC != "true"){
+    db.Db.sync()
+        .then(console.log("DB is up to date."))
+        .catch(e => console.error)
+}
+// Add Tillice to the process db
+//TODO: make this optional
+ReadByName("tillicev2").then(til => {
+    if(til == null){
+        RegisterApplication("tillicev2").then(a => AddPermissions("tillicev2", PermissionTypes.All))
+    }
+})
+
 
 // Initialize an Express app
 const app = express()
@@ -54,8 +74,8 @@ app.use(ApplicationAccessLogger)
 // User Express Routers
 app.use('/users', UserRoute)
 app.use('/applications', ApiAuth)
-app.use('/currencies', CurrencyRoute)
-app.use('/transactions', TransactionRoute)
+// app.use('/currencies', CurrencyRoute)
+// app.use('/transactions', TransactionRoute)
 
 // This is a weekly job that recalculates the price of currencies for use with exchange rate
 var PriceJob = new CronJob('0 0 0 * * 1', () => {
@@ -79,6 +99,3 @@ app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.listen((process.env.PORT || 5000), () => {
     console.log(`The app has started.`)
 })
-
-// This initializes the MongoDB connection
-const MongoDBConnector = require('./db/mongo_connect');

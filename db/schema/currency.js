@@ -3,14 +3,15 @@
  * Database Schema for Currency Objects in the database
  */
 
-const mongoose = require('mongoose')
+const { DataTypes } = require('sequelize')
+const { Db } = require('../db')
 
-module.exports.Schema = new mongoose.Schema({
-    CurrencyName: String,
-    CurrencySymbol: String,
-    CurrencyTotalStockpile: Number,
-    CurrencyRemainingStockpile: Number,
-    CurrencyPrice: Number
+module.exports.Schema = Db.define("Currency", {
+    CurrencyName: DataTypes.STRING,
+    CurrencySymbol: DataTypes.STRING,
+    CurrencyTotalStockpile: DataTypes.INTEGER,
+    CurrencyRemainingStockpile: DataTypes.INTEGER,
+    CurrencyPrice: DataTypes.INTEGER
 })
 
-module.exports.Model = mongoose.model("CurrencyTypes", exports.Schema)
+//module.exports.Model = mongoose.model("CurrencyTypes", exports.Schema)
