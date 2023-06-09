@@ -44,7 +44,8 @@ module.exports.ReadByName = async (AppName) => {
 
 // Append Permissions to an application's Permissions array
 module.exports.AddPermissions = (AppName, NewPermissions) => {
-    Application.Model.findOne({AppName: AppName}).exec( (err, res) => {
+    Application.Model.findOne({AppName: AppName}) .exec( (err, res) => {
+        console.log(err)
         if (err) console.error(err);
         else {
             if (Array.isArray(NewPermissions)) {

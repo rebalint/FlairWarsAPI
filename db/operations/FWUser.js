@@ -11,18 +11,20 @@ const RedditUserOps = require('./redditUser')
 // CREATE OPERATIONS
 
 /**
- * Create a FWUser in the database
+ * Create an FWUser in the database
  * @param {String} redditUsername 
  * @param {String} discordId 
  * @param {Function} cb
  */
 
 module.exports.CreateFWUser = (redditUsername, discordId, cb) => {
+    console.log("create")
     RedditUserOps.ReadOneRedditUser(redditUsername, dbRes => {
         if (dbRes === "DBERR" || dbRes === "NOTFOUND") {
             cb(dbRes)
         }
         else {
+            console.log(`added discordid: ${discordId}`)
             let newFWUser = new FWUser.Model({
                 RedditInfo: dbRes._id,
                 DiscordID: discordId,
@@ -67,10 +69,24 @@ module.exports.GetAllFWUsers = (cb) => {
     })
 }
 
+/**
+ * Get a user by their Discord ID or return 'NOTFOUND'
+ * @param {String} DiscordID
+ * @param {Function} cb 
+ */
 
-
-module.exports.GetOneFWUser = (cb) => {
-
+module.exports.GetOneFWUser = (DiscordID, cb) => {
+    FWUser.Model.findOne({DiscordID: DiscordID}).populate('RedditInfo').exec((err, res) => {
+        if(err){
+            console.error(err)
+            cb('DBERR')
+        }
+        else if(res){
+            cb(res)
+        } else {
+            cb('NOTFOUND')
+        }
+    })
 }
 
 

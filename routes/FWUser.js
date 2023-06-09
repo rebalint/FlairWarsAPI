@@ -14,9 +14,12 @@ const dbh = require('../util/dbUtils')
 // Create a FWUser
 
 router.post('/', (req, res) => {
+
     let RouteOperation = () => {
-        if (validate.BodyEvery(req.body, ['redditUsername', 'discordId'])) {
-            FWUserOps.CreateFWUser(req.body.redditUsername, req.body.discordId, dbRes => {
+        console.log('route')
+        console.log(req.body)
+        if (validate.BodyEvery(req.body, ['redditUsername', 'discordMemberId'])) {
+            FWUserOps.CreateFWUser(req.body.redditUsername, req.body.discordMemberId, dbRes => {
                 dbh.SendResponse(dbh.dbStatusHandler('POST', dbRes), res)
             })
         }
@@ -70,7 +73,9 @@ router.post('/:FWUser', (req, res) => {
 
 router.get('/:FWUser', (req, res) => {
     let RouteOperation = () => {
-
+        FWUserOps.GetOneFWUser(req.params.FWUser, dbRes => {
+            dbh.SendResponse(dbh.dbStatusHandler('GET', dbRes), res)
+        })
     }
 
     ProtectRoute([], req, res, RouteOperation)
