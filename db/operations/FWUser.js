@@ -18,13 +18,11 @@ const RedditUserOps = require('./redditUser')
  */
 
 module.exports.CreateFWUser = (redditUsername, discordId, cb) => {
-    console.log("create")
     RedditUserOps.ReadOneRedditUser(redditUsername, dbRes => {
         if (dbRes === "DBERR" || dbRes === "NOTFOUND") {
             cb(dbRes)
         }
         else {
-            console.log(`added discordid: ${discordId}`)
             let newFWUser = new FWUser.Model({
                 RedditInfo: dbRes._id,
                 DiscordID: discordId,

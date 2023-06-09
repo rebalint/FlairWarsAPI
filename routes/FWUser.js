@@ -16,8 +16,6 @@ const dbh = require('../util/dbUtils')
 router.post('/', (req, res) => {
 
     let RouteOperation = () => {
-        console.log('route')
-        console.log(req.body)
         if (validate.BodyEvery(req.body, ['redditUsername', 'discordMemberId'])) {
             FWUserOps.CreateFWUser(req.body.redditUsername, req.body.discordMemberId, dbRes => {
                 dbh.SendResponse(dbh.dbStatusHandler('POST', dbRes), res)
