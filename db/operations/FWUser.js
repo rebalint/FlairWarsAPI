@@ -7,6 +7,7 @@ const FWUser = require('../schema/FWUser')
 
 // Additional Imports
 const RedditUserOps = require('./redditUser')
+const { hash } = require('../../auth/hashHandler')
 
 // CREATE OPERATIONS
 
@@ -96,12 +97,26 @@ module.exports.UpdateFields = () => {
     // WPNickname
 }
 
-
-
-module.exports.UpdateWPPassword = () => {
-
+module.exports.SetWPPassword = (DiscordID, NewPassword, cb) => {
+    hash(NewPassword, (hash) => {
+        if(hash == 'HASHERR'){
+            cb('HASHERR')
+        } else {
+            FWUser.Model.findOne({DiscordID: DiscordID}).exec((err, res) => {
+                if(err){
+                    console.error(err)
+                    cb('DBERR')
+                } else if(res){
+                    res.WPPassword = hash
+                    res.save()
+                    cb(res)
+                } else {
+                    cb('NOTFOUND')
+                }
+            })
+        }
+    })
 }
-
 
 
 module.exports.AddPermission = () => {

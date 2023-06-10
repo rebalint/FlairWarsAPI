@@ -19,6 +19,7 @@ module.exports.PermissionTypes = {
     CanUpdateUsers: 'CanUpdateUsers',
     CanDeleteUsers: 'CanDeleteUsers',
     CanManageAppPerms: 'CanManageAppPerms',
+    CanManagePasswords: 'CanManagePasswords', // NOTE: do NOT give this to anything you don't 100% trust! it allows setting passwords with zero checks beyond app perms
     All: 'All'
 }
 

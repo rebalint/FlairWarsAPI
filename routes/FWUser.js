@@ -6,6 +6,8 @@ const ProtectRoute = require('../auth/protected')
 
 const validate = require('../util/vaildation')
 const dbh = require('../util/dbUtils')
+const { PermissionTypes } = require('../db/operations/application')
+const { compare } = require('../auth/hashHandler')
 
 //  Collection Level Routes
 
@@ -59,7 +61,26 @@ router.delete('/', (req, res) => {
 
 router.post('/:FWUser', (req, res) => {
     let RouteOperation = () => {
-
+        if(validate.BodyEvery(req.body, ['WPPassword'])){
+            FWUserOps.GetOneFWUser(req.params.FWUser, dbRes => {
+                // can't use dbutil sendresponse here sadly
+                if(dbRes == 'DBERR'){
+                    res.status(500).send('Server Error: Database Error')
+                } else {
+                    compare(req.body['WPPassword'], dbRes.WPPassword, (hashRes) => {
+                        if(hashRes === 'HASHERR'){
+                            res.status(500).send('Server Error')
+                        } else {
+                            if(hashRes){
+                                res.status(200).send(dbRes)
+                            } else {
+                                res.status(403).send('Forbidden: Incorrect username or password')
+                            }
+                        }
+                    })
+                }
+            })
+        }
     }
 
     ProtectRoute([], req, res, RouteOperation)
@@ -92,11 +113,25 @@ router.put('/:FWUser', (req, res) => {
 })
 
 
-// Update Password
+// Set Password
 
-router.put('/:FWUser/credentials', (req, res) => {
+router.post('/:FWUser/credentials', (req, res) => {
     let RouteOperation = () => {
+        if(validate.BodyEvery(req.body, ['WPPassword'])){
+            FWUserOps.SetWPPassword(req.params.FWUser, req.body.WPPassword, dbRes => {
+                dbh.SendResponse(dbh.dbStatusHandler('PUT', dbRes), res)
+            })
+        }
+    }
 
+    ProtectRoute([PermissionTypes.CanManagePasswords], req, res, RouteOperation)
+})
+
+// Update password
+
+router.post('/:FWUser/credentials', (req, res) => {
+    let RouteOperation = () => {
+        
     }
 
     ProtectRoute([], req, res, RouteOperation)
